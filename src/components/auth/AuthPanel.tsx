@@ -78,10 +78,20 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   }
 
   if (auth.user) {
+    const profileName = auth.user.displayName || auth.user.email || auth.user.uid;
+
     return (
       <section className="panel">
         <h2>Member</h2>
-        <p className="success">Signed in as {auth.user.displayName || auth.user.email || auth.user.uid}</p>
+        <div className="member-summary">
+          <div className="member-avatar" aria-label="Member profile image">
+            {auth.user.photoURL ? <img alt="" src={auth.user.photoURL} /> : <span>{profileName.slice(0, 1).toUpperCase()}</span>}
+          </div>
+          <div>
+            <p className="member-name">{profileName}</p>
+            <p className="muted">Signed in</p>
+          </div>
+        </div>
         {!auth.user.emailVerified ? (
           <>
             <p className="muted">Email verification is still required.</p>

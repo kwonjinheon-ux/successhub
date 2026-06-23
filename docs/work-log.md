@@ -203,6 +203,29 @@ Prototype Security Rules should be reviewed before broad sharing.
 2026-06-23
 
 ## Work content
+Documented the mandatory responsive-web requirement and added a circular logged-in profile image display to the member card.
+
+## Modified files
+- `docs/responsive-web.md`
+- `docs/work-log.md`
+- `src/components/auth/AuthPanel.tsx`
+- `src/styles/globals.css`
+
+## Firebase configuration
+The member avatar uses `auth.user.photoURL`, which is populated by Google sign-in or Firebase Storage profile uploads.
+
+## Test method
+Run `npm run build`.
+
+## Test result
+`npm run build` passed after clearing the stale `.next` cache.
+
+---
+
+## Work date
+2026-06-23
+
+## Work content
 Added Google sign-in to join/login, 30-day auth persistence, cleaner signup validation chips, and editable member profile details with profile photo upload.
 
 ## Modified files
