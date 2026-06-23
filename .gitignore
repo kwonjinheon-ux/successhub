@@ -7,3 +7,4 @@ firebase-debug.log
 firebase-debug.*.log
 *.local
 google-services.json
+*.local.md

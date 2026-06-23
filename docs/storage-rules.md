@@ -24,3 +24,33 @@ Wire image upload controls into community and market forms.
 
 ## Next work
 Add image previews, upload progress, and delete support.
+
+---
+
+## Work date
+2026-06-23
+
+## Work content
+Fixed profile image upload authorization by deploying Storage Rules for `profiles/{uid}` and separating create/update validation from delete rules.
+
+## Modified files
+- `storage.rules`
+- `firebase.json`
+- `firestore.rules`
+- `firestore.indexes.json`
+- `src/services/firebaseClient.ts`
+- `src/services/databaseService.ts`
+- `src/components/auth/ProfilePanel.tsx`
+- `src/models/UserModel.ts`
+
+## Firebase configuration
+Profile images are stored in Firebase Storage under `profiles/{uid}/{fileName}`. Authenticated users can create/update/delete only under their own UID path. Profile metadata is stored in Cloud Firestore `users/{uid}`.
+
+## Test method
+Ran `npm run build`, `firebase deploy --only firestore:rules,storage --dry-run --project success-hub-2026`, then deployed Firestore and Storage rules.
+
+## Test result
+Build passed. Firestore and Storage rules compiled and deployed successfully.
+
+## Remaining issues
+Review and harden prototype Firestore Security Rules before broad public launch.

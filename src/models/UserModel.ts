@@ -8,8 +8,6 @@ export interface UserModel {
   photoURL?: string | null;
   emailVerified?: boolean;
   provider: AuthProvider;
-  trustScore?: number;
-  points?: number;
   createdAt?: string;
   updatedAt?: string;
 }

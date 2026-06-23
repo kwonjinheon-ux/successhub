@@ -12,21 +12,24 @@ service firebase.storage {
 
     match /profiles/{uid}/{fileName} {
       allow read: if true;
-      allow create, update, delete: if ownsUserPath(uid)
+      allow create, update: if ownsUserPath(uid)
         && request.resource.size < 5 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
+      allow delete: if ownsUserPath(uid);
     }
 
     match /posts/{uid}/{postId}/{fileName} {
       allow read: if true;
-      allow create, update, delete: if ownsUserPath(uid)
+      allow create, update: if ownsUserPath(uid)
         && request.resource.size < 10 * 1024 * 1024;
+      allow delete: if ownsUserPath(uid);
     }
 
     match /market/{uid}/{itemId}/{fileName} {
       allow read: if true;
-      allow create, update, delete: if ownsUserPath(uid)
+      allow create, update: if ownsUserPath(uid)
         && request.resource.size < 10 * 1024 * 1024;
+      allow delete: if ownsUserPath(uid);
     }
 
     match /private/{uid}/{allPaths=**} {

@@ -171,6 +171,38 @@ Run `npm run build`.
 2026-06-23
 
 ## Work content
+Moved member profile metadata from Realtime Database to Cloud Firestore and deployed Storage/Firestore rules to fix `storage/unauthorized` on profile image upload.
+
+## Modified files
+- `firebase.json`
+- `firestore.rules`
+- `firestore.indexes.json`
+- `storage.rules`
+- `src/services/firebaseClient.ts`
+- `src/services/databaseService.ts`
+- `src/components/auth/ProfilePanel.tsx`
+- `src/models/UserModel.ts`
+- `docs/storage-rules.md`
+- `docs/work-log.md`
+
+## Firebase configuration
+Firestore database `(default)` is STANDARD / FIRESTORE_NATIVE. User profile documents are stored in `users/{uid}` and restricted to the owner. Storage profile images are restricted to `profiles/{uid}`.
+
+## Test method
+Ran `npm run build`, Firestore/Storage rules dry-run, then deployed rules to `success-hub-2026`.
+
+## Test result
+Build passed. Rules dry-run passed. Firestore and Storage Rules deployed successfully.
+
+## Remaining issues
+Prototype Security Rules should be reviewed before broad sharing.
+
+---
+
+## Work date
+2026-06-23
+
+## Work content
 Added Google sign-in to join/login, 30-day auth persistence, cleaner signup validation chips, and editable member profile details with profile photo upload.
 
 ## Modified files

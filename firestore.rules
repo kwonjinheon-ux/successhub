@@ -1,0 +1,104 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: Firebase Auth UID
+    // Fields:
+    //   - uid: string, required, immutable, must equal request.auth.uid
+    //   - email: string|null, optional, private PII
+    //   - phoneNumber: string|null, optional, private PII
+    //   - displayName: string|null, optional, max 80 chars
+    //   - photoURL: string|null, optional, http(s) URL, max 2048 chars
+    //   - emailVerified: bool, optional
+    //   - provider: string, optional enum
+    //   - createdAt: string, optional, max 40 chars
+    //   - updatedAt: string, optional, max 40 chars
+    //
+    // The users collection contains email addresses, so documents are
+    // readable only by their owner.
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function optionalString(field, maxLength) {
+      return !(field in request.resource.data)
+        || request.resource.data[field] == null
+        || (request.resource.data[field] is string && request.resource.data[field].size() <= maxLength);
+    }
+
+    function optionalBool(field) {
+      return !(field in request.resource.data)
+        || request.resource.data[field] == null
+        || request.resource.data[field] is bool;
+    }
+
+    function optionalUrl(field) {
+      return !(field in request.resource.data)
+        || request.resource.data[field] == null
+        || (request.resource.data[field] is string
+          && request.resource.data[field].size() <= 2048
+          && (request.resource.data[field].matches("^https://.*")
+            || request.resource.data[field].matches("^http://.*")));
+    }
+
+    function optionalProvider(field) {
+      return !(field in request.resource.data)
+        || request.resource.data[field] == null
+        || request.resource.data[field] in ["password", "google", "facebook", "apple", "phone"];
+    }
+
+    function isValidUserProfile(userId) {
+      return hasOnlyAllowedFields([
+          "uid",
+          "email",
+          "phoneNumber",
+          "displayName",
+          "photoURL",
+          "emailVerified",
+          "provider",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.uid is string
+        && request.resource.data.uid == userId
+        && request.resource.data.uid == request.auth.uid
+        && optionalString("email", 320)
+        && optionalString("phoneNumber", 32)
+        && optionalString("displayName", 80)
+        && optionalUrl("photoURL")
+        && optionalBool("emailVerified")
+        && optionalProvider("provider")
+        && optionalString("createdAt", 40)
+        && optionalString("updatedAt", 40);
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserProfile(userId);
+      allow update: if isOwner(userId)
+        && resource.data.uid == userId
+        && request.resource.data.uid == resource.data.uid
+        && isValidUserProfile(userId);
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

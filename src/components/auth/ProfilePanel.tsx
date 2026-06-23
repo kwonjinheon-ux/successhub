@@ -60,7 +60,6 @@ export function ProfilePanel() {
               <input accept="image/*" type="file" onChange={handlePhotoChange} />
             </label>
           </div>
-          <p className="muted">Current trust score: {profile?.trustScore ?? 0}</p>
           <label>
             Name or nickname
             <input

@@ -1,16 +1,18 @@
 "use client";
 
 import { get, onValue, push, ref, set, update } from "firebase/database";
-import { getRealtimeDb } from "@/services/firebaseClient";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { getFirestoreDb, getRealtimeDb } from "@/services/firebaseClient";
 import type { MarketItemModel } from "@/models/MarketItemModel";
 import type { PostModel } from "@/models/PostModel";
 import type { UserModel } from "@/models/UserModel";
 
 export function upsertUserProfile(uid: string, profile: Partial<UserModel>) {
-  return update(ref(getRealtimeDb(), `users/${uid}`), {
+  return setDoc(doc(getFirestoreDb(), "users", uid), {
+    uid,
     ...profile,
     updatedAt: new Date().toISOString()
-  });
+  }, { merge: true });
 }
 
 export async function createPost(post: Omit<PostModel, "id" | "createdAt" | "updatedAt">) {
@@ -50,6 +52,6 @@ export function subscribeToMarketItems(callback: (items: MarketItemModel[]) => v
 }
 
 export async function readUserProfile(uid: string) {
-  const snapshot = await get(ref(getRealtimeDb(), `users/${uid}`));
-  return snapshot.val() as UserModel | null;
+  const snapshot = await getDoc(doc(getFirestoreDb(), "users", uid));
+  return snapshot.exists() ? (snapshot.data() as UserModel) : null;
 }
