@@ -24,7 +24,7 @@ async function sendCodeEmail(email: string, code: string) {
       return { developmentCode: code };
     }
 
-    throw new Error("Email delivery is not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, and SMTP_FROM.");
+    throw new Error("Email delivery is not configured yet. Add SMTP settings in Firebase App Hosting before sending verification codes.");
   }
 
   const transporter = nodemailer.createTransport({

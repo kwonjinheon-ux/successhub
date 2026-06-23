@@ -27,6 +27,7 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
   const remainingSeconds = useCountdown(emailCodeExpiresAt);
+  const isEmailCodeActive = remainingSeconds > 0 && !isEmailVerified;
   const passwordChecks = useMemo(() => passwordRules.map((rule) => ({ ...rule, isValid: rule.test(password) })), [password]);
   const isPasswordStrong = passwordChecks.every((rule) => rule.isValid);
   const isPasswordMatch = password.length > 0 && password === passwordConfirm;
@@ -138,8 +139,13 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
         </label>
         {mode === "signup" ? (
           <div className="verification-grid">
-            <Button className="secondary" disabled={!email || isSendingCode || isEmailVerified} type="button" onClick={handleSendEmailCode}>
-              {isSendingCode ? "Sending..." : "Send code"}
+            <Button
+              className="secondary"
+              disabled={!email || isSendingCode || isEmailVerified || isEmailCodeActive}
+              type="button"
+              onClick={handleSendEmailCode}
+            >
+              {isSendingCode ? "Sending..." : isEmailCodeActive ? formatCountdown(remainingSeconds) : "Send code"}
             </Button>
             <label>
               Email code
@@ -154,13 +160,12 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
             </label>
             <Button
               className="secondary"
-              disabled={emailCode.length !== 6 || isVerifyingCode || isEmailVerified || remainingSeconds === 0}
+              disabled={emailCode.length !== 6 || isVerifyingCode || isEmailVerified || !isEmailCodeActive}
               type="button"
               onClick={handleVerifyEmailCode}
             >
               {isVerifyingCode ? "Checking..." : "Verify code"}
             </Button>
-            {emailCodeExpiresAt && !isEmailVerified ? <p className="muted">Code expires in {remainingSeconds}s.</p> : null}
             {isEmailVerified ? <p className="success">Email verified.</p> : null}
             {emailMessage ? <p className={isEmailVerified ? "success" : "muted"}>{emailMessage}</p> : null}
           </div>
@@ -250,4 +255,10 @@ function useCountdown(expiresAt: number | null) {
   }, [expiresAt]);
 
   return remainingSeconds;
+}
+
+function formatCountdown(totalSeconds: number) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }

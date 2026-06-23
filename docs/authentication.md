@@ -58,3 +58,5 @@ Run `npm install` and `npm run build`. In production, configure SMTP variables b
 
 ## Remaining issues
 SMTP secrets must be configured in App Hosting before real email code delivery works in production.
+
+To enable production delivery, create SMTP secrets and reference them in App Hosting runtime configuration. Do not commit SMTP passwords to Git.

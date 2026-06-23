@@ -141,3 +141,5 @@ Run dependency installation and production build.
 
 ## Remaining issues
 Configure SMTP secrets in App Hosting for production email delivery.
+
+The signup UI now shows the send-code button as a `2:00` countdown after a code is sent, then returns to `Send code` when it expires.
