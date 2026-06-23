@@ -13,11 +13,13 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   sendEmailVerification,
+  sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
   signInWithPhoneNumber,
   signInWithPopup,
   signOut,
+  updateEmail,
   updateProfile
 } from "firebase/auth";
 import { getFirebaseAuth } from "@/services/firebaseClient";
@@ -109,6 +111,44 @@ export async function updateCurrentUserProfile(profile: { displayName?: string |
   return getFirebaseAuth().currentUser;
 }
 
+export async function updateCurrentUserEmail(email: string) {
+  const currentUser = getFirebaseAuth().currentUser;
+
+  if (!currentUser) {
+    throw new Error("Login is required to update email.");
+  }
+
+  await updateEmail(currentUser, email);
+  await currentUser.reload();
+  await upsertUserProfile(currentUser.uid, {
+    uid: currentUser.uid,
+    email,
+    emailVerified: currentUser.emailVerified,
+    displayName: currentUser.displayName,
+    photoURL: currentUser.photoURL
+  });
+  return getFirebaseAuth().currentUser;
+}
+
+export async function sendPasswordReset(email: string) {
+  const origin = getEmailActionOrigin();
+
+  await sendPasswordResetEmail(getFirebaseAuth(), email, {
+    url: `${origin}/login`,
+    handleCodeInApp: false
+  });
+}
+
+export async function sendCurrentUserPasswordReset() {
+  const currentUser = getFirebaseAuth().currentUser;
+
+  if (!currentUser?.email) {
+    throw new Error("This account does not have an email address for password reset.");
+  }
+
+  await sendPasswordReset(currentUser.email);
+}
+
 export async function resendVerificationEmail() {
   const currentUser = getFirebaseAuth().currentUser;
 
@@ -154,12 +194,16 @@ export async function refreshCurrentUser() {
 }
 
 async function sendVerificationEmail(user: User) {
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://successhub--success-hub-2026.asia-southeast1.hosted.app";
+  const origin = getEmailActionOrigin();
 
   await sendEmailVerification(user, {
     url: `${origin}/auth/action`,
     handleCodeInApp: true
   });
+}
+
+function getEmailActionOrigin() {
+  return typeof window !== "undefined" ? window.location.origin : "https://successhub--success-hub-2026.asia-southeast1.hosted.app";
 }
 
 function setAuthPersistence(rememberFor30Days: boolean) {

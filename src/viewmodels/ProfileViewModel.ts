@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { UserModel } from "@/models/UserModel";
-import { updateCurrentUserProfile } from "@/services/authService";
+import { sendCurrentUserPasswordReset, updateCurrentUserEmail, updateCurrentUserProfile } from "@/services/authService";
 import { readUserProfile, upsertUserProfile } from "@/services/databaseService";
 import { getFirebaseErrorMessage } from "@/services/firebaseClient";
 import { uploadProfileImage } from "@/services/storageService";
@@ -55,5 +55,50 @@ export function useProfileViewModel(uid?: string) {
     }
   }
 
-  return { profile, isSaving, error, message, saveProfile };
+  async function saveEmail(email: string) {
+    if (!uid) {
+      throw new Error("Login is required to update email.");
+    }
+
+    try {
+      setIsSaving(true);
+      setError(null);
+      setMessage(null);
+
+      const updatedUser = await updateCurrentUserEmail(email);
+      await upsertUserProfile(uid, {
+        email,
+        emailVerified: updatedUser?.emailVerified ?? false
+      });
+      setProfile((current) => ({ ...current, uid, email, emailVerified: updatedUser?.emailVerified ?? false } as UserModel));
+      setMessage("Email address updated.");
+      return true;
+    } catch (nextError) {
+      console.error(nextError);
+      setError(getFirebaseErrorMessage(nextError));
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function resetPassword() {
+    try {
+      setIsSaving(true);
+      setError(null);
+      setMessage(null);
+
+      await sendCurrentUserPasswordReset();
+      setMessage("Password reset email sent.");
+      return true;
+    } catch (nextError) {
+      console.error(nextError);
+      setError(getFirebaseErrorMessage(nextError));
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return { profile, isSaving, error, message, saveProfile, saveEmail, resetPassword };
 }

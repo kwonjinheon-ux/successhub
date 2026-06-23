@@ -11,7 +11,8 @@ import {
   observeAuthState,
   refreshCurrentUser,
   resendVerificationEmail,
-  registerWithEmail
+  registerWithEmail,
+  sendPasswordReset
 } from "@/services/authService";
 import { getFirebaseConfigStatus, getFirebaseErrorMessage } from "@/services/firebaseClient";
 
@@ -103,6 +104,20 @@ export function useAuthViewModel() {
         setIsSubmitting(true);
         try {
           await resendVerificationEmail();
+          return true;
+        } catch (nextError) {
+          console.error(nextError);
+          setError(getFirebaseErrorMessage(nextError));
+          return false;
+        } finally {
+          setIsSubmitting(false);
+        }
+      },
+      async resetPassword(email: string) {
+        setError(null);
+        setIsSubmitting(true);
+        try {
+          await sendPasswordReset(email);
           return true;
         } catch (nextError) {
           console.error(nextError);

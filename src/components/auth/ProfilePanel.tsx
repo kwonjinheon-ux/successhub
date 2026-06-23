@@ -7,8 +7,9 @@ import { useProfileViewModel } from "@/viewmodels/ProfileViewModel";
 
 export function ProfilePanel() {
   const auth = useAuth();
-  const { profile, isSaving, error, message, saveProfile } = useProfileViewModel(auth.user?.uid);
+  const { profile, isSaving, error, message, saveProfile, saveEmail, resetPassword } = useProfileViewModel(auth.user?.uid);
   const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isPhotoEditorOpen, setIsPhotoEditorOpen] = useState(false);
@@ -21,6 +22,10 @@ export function ProfilePanel() {
   useEffect(() => {
     setDisplayName(profile?.displayName || auth.user?.displayName || "");
   }, [auth.user?.displayName, profile?.displayName]);
+
+  useEffect(() => {
+    setEmail(profile?.email || auth.user?.email || "");
+  }, [auth.user?.email, profile?.email]);
 
   useEffect(() => {
     return () => {
@@ -100,6 +105,20 @@ export function ProfilePanel() {
     setPhotoScale(1);
     setPhotoOffsetX(0);
     setPhotoOffsetY(0);
+  }
+
+  async function handleEmailSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!auth.user || !email) {
+      return;
+    }
+
+    await saveEmail(email);
+    await auth.refreshUser();
+  }
+
+  async function handlePasswordReset() {
+    await resetPassword();
   }
 
   const photoURL = photoPreview || profile?.photoURL || auth.user?.photoURL;
@@ -183,6 +202,27 @@ export function ProfilePanel() {
       ) : (
         <p className="muted">Login is required to edit profile data in Firestore.</p>
       )}
+      {auth.user ? (
+        <div className="account-settings">
+          <form className="form-grid" onSubmit={handleEmailSubmit}>
+            <h3>Account email</h3>
+            <label>
+              Email address
+              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+            </label>
+            <Button disabled={isSaving || email === auth.user.email} type="submit">
+              {isSaving ? "Saving..." : "Update email"}
+            </Button>
+          </form>
+          <div className="form-grid">
+            <h3>Password</h3>
+            <p className="muted">Send a Firebase password reset email to {auth.user.email || "this account"}.</p>
+            <Button className="secondary" disabled={isSaving || !auth.user.email} type="button" onClick={handlePasswordReset}>
+              Send password reset email
+            </Button>
+          </div>
+        </div>
+      ) : null}
       {message ? <p className="success">{message}</p> : null}
       {photoError ? <p className="error">{photoError}</p> : null}
       {error ? <p className="error">{error}</p> : null}

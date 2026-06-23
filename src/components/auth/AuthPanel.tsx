@@ -77,6 +77,21 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
     setIsResendingVerification(false);
   }
 
+  async function handlePasswordReset() {
+    setFormError(null);
+    setFormMessage(null);
+
+    if (!email) {
+      setFormError("Enter your account email first, then request a password reset.");
+      return;
+    }
+
+    const sent = await auth.resetPassword(email);
+    if (sent) {
+      setFormMessage("Password reset email sent. Check your inbox and follow the Firebase reset link.");
+    }
+  }
+
   if (auth.user) {
     const profileName = auth.user.displayName || auth.user.email || auth.user.uid;
 
@@ -189,6 +204,11 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
         <Button disabled={auth.isSubmitting} type="submit">
           {auth.isSubmitting ? "Please wait..." : mode === "signup" ? "Sign up" : "Log in"}
         </Button>
+        {mode === "login" ? (
+          <button className="text-button" disabled={auth.isSubmitting} type="button" onClick={handlePasswordReset}>
+            Forgot password?
+          </button>
+        ) : null}
       </form>
       <div className="social-row secondary-social-row">
         <Button className="secondary" type="button" onClick={() => auth.loginWithFacebook()}>
