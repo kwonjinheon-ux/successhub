@@ -32,6 +32,10 @@ a {
   padding: 28px 0 56px;
 }
 
+.auth-page-shell {
+  width: min(480px, calc(100% - 32px));
+}
+
 .main-nav,
 .hero-band,
 .two-column,

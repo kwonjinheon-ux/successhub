@@ -80,19 +80,8 @@ export function AuthPanel({ mode, redirectOnAuthenticated }: { mode: "login" | "
     setIsResendingVerification(false);
   }
 
-  async function handlePasswordReset() {
-    setFormError(null);
-    setFormMessage(null);
-
-    if (!email) {
-      setFormError("Enter your account email first, then request a password reset.");
-      return;
-    }
-
-    const sent = await auth.resetPassword(email);
-    if (sent) {
-      setFormMessage("Password reset email sent. Check your inbox and follow the Firebase reset link.");
-    }
+  if (redirectOnAuthenticated && (auth.isLoading || auth.user)) {
+    return null;
   }
 
   if (auth.user) {
@@ -218,9 +207,9 @@ export function AuthPanel({ mode, redirectOnAuthenticated }: { mode: "login" | "
           {auth.isSubmitting ? "Please wait..." : mode === "signup" ? "Sign up" : "Log in"}
         </Button>
         {mode === "login" ? (
-          <button className="text-button" disabled={auth.isSubmitting} type="button" onClick={handlePasswordReset}>
+          <Link className="text-button" href="/forgot-password">
             Forgot password?
-          </button>
+          </Link>
         ) : null}
       </form>
       <div className="social-row secondary-social-row">
