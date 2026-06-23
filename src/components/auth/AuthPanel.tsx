@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/common/Button";
 import { useAuth } from "@/hooks/useAuth";
 import { getPasswordChecks } from "@/services/passwordPolicy";
 
-export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
+export function AuthPanel({ mode, redirectOnAuthenticated }: { mode: "login" | "signup"; redirectOnAuthenticated?: string }) {
   const auth = useAuth();
+  const router = useRouter();
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [isResendingVerification, setIsResendingVerification] = useState(false);
@@ -25,6 +27,12 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const isResendCoolingDown = resendRemainingSeconds > 0;
   const isPasswordStrong = passwordChecks.every((rule) => rule.isValid);
   const isPasswordMatch = password.length > 0 && password === passwordConfirm;
+
+  useEffect(() => {
+    if (auth.user && redirectOnAuthenticated) {
+      router.replace(redirectOnAuthenticated);
+    }
+  }, [auth.user, redirectOnAuthenticated, router]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
