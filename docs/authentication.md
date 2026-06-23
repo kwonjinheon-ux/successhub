@@ -28,3 +28,33 @@ Facebook and Apple OAuth credentials need provider configuration. Phone login ne
 
 ## Next work
 Add email verification and password reset flows after the first Firebase-backed login works.
+
+---
+
+## Work date
+2026-06-23
+
+## Work content
+Updated signup to require name, email verification code, password, and password confirmation. Password rules are checked live: minimum 8 characters with lowercase, uppercase, number, and special character.
+
+## Modified files
+- `src/components/auth/AuthPanel.tsx`
+- `src/app/api/auth/email-code/route.ts`
+- `src/app/api/auth/email-code/verify/route.ts`
+- `src/services/firebaseAdmin.ts`
+- `src/styles/globals.css`
+- `database.rules.json`
+- `.env.example`
+- `apphosting.yaml`
+
+## Firebase configuration
+Email verification codes are stored server-side in Firebase Realtime Database under `emailVerificationCodes`. Client access is denied by rules; only server-side Firebase Admin access should write and verify codes.
+
+## Test method
+Run `npm install` and `npm run build`. In production, configure SMTP variables before testing email delivery.
+
+## Test result
+`npm install` completed and `npm run build` passed. The new email-code API routes are built as dynamic server routes.
+
+## Remaining issues
+SMTP secrets must be configured in App Hosting before real email code delivery works in production.

@@ -178,6 +178,34 @@ textarea {
   margin-top: 12px;
 }
 
+.verification-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.password-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.password-feedback span {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 12px;
+  padding: 5px 8px;
+}
+
+.password-feedback .valid {
+  border-color: rgba(23, 114, 69, 0.35);
+  color: var(--ok);
+}
+
+.password-feedback .invalid {
+  border-color: rgba(180, 35, 24, 0.35);
+  color: var(--warn);
+}
+
 .list {
   display: grid;
   gap: 10px;
