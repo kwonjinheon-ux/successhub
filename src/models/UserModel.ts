@@ -6,6 +6,7 @@ export interface UserModel {
   phoneNumber?: string | null;
   displayName?: string | null;
   photoURL?: string | null;
+  emailVerified?: boolean;
   provider: AuthProvider;
   trustScore?: number;
   points?: number;

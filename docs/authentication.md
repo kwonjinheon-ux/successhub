@@ -35,12 +35,10 @@ Add email verification and password reset flows after the first Firebase-backed 
 2026-06-23
 
 ## Work content
-Updated signup to require name, email verification code, password, and password confirmation. Password rules are checked live: minimum 8 characters with lowercase, uppercase, number, and special character.
+Updated signup to use Firebase Authentication's built-in email address verification link instead of a custom code email flow. Signup still requires name, email, password, and password confirmation. Password rules are checked live: minimum 8 characters with lowercase, uppercase, number, and special character.
 
 ## Modified files
 - `src/components/auth/AuthPanel.tsx`
-- `src/app/api/auth/email-code/route.ts`
-- `src/app/api/auth/email-code/verify/route.ts`
 - `src/services/firebaseAdmin.ts`
 - `src/styles/globals.css`
 - `database.rules.json`
@@ -48,15 +46,13 @@ Updated signup to require name, email verification code, password, and password 
 - `apphosting.yaml`
 
 ## Firebase configuration
-Email verification codes are stored server-side in Firebase Realtime Database under `emailVerificationCodes`. Client access is denied by rules; only server-side Firebase Admin access should write and verify codes.
+Firebase Authentication sends the verification email from the configured Firebase email template. The deployed App Hosting domain must be authorized in Firebase Authentication settings.
 
 ## Test method
-Run `npm install` and `npm run build`. In production, configure SMTP variables before testing email delivery.
+Run `npm install` and `npm run build`. In production, create an account and verify that Firebase sends the email verification link.
 
 ## Test result
-`npm install` completed and `npm run build` passed. The new email-code API routes are built as dynamic server routes.
+`npm install` completed and `npm run build` passed.
 
 ## Remaining issues
-SMTP secrets must be configured in App Hosting before real email code delivery works in production.
-
-To enable production delivery, create SMTP secrets and reference them in App Hosting runtime configuration. Do not commit SMTP passwords to Git.
+Firebase Authentication email templates should use the desired sender name, reply address, subject, and action URL in the Firebase Console.

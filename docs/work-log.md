@@ -116,12 +116,10 @@ Push the fix to GitHub and verify the App Hosting deployment.
 2026-06-23
 
 ## Work content
-Added signup email-code verification with a 2 minute expiration and live password confirmation/strength validation.
+Replaced the custom signup email-code verification with Firebase Authentication's built-in email verification link and kept live password confirmation/strength validation.
 
 ## Modified files
 - `src/components/auth/AuthPanel.tsx`
-- `src/app/api/auth/email-code/route.ts`
-- `src/app/api/auth/email-code/verify/route.ts`
 - `src/services/firebaseAdmin.ts`
 - `src/styles/globals.css`
 - `database.rules.json`
@@ -131,15 +129,13 @@ Added signup email-code verification with a 2 minute expiration and live passwor
 - `docs/work-log.md`
 
 ## Firebase configuration
-Email code records are stored in Realtime Database through Firebase Admin and are blocked from direct client reads/writes by database rules.
+Firebase Authentication now sends the email verification link. No SMTP or custom verification-code database records are required.
 
 ## Test method
 Run dependency installation and production build.
 
 ## Test result
-`npm install` completed and `npm run build` passed. The new email-code API routes are built as dynamic server routes.
+`npm install` completed and `npm run build` passed after removing the custom code email API and SMTP dependencies.
 
 ## Remaining issues
-Configure SMTP secrets in App Hosting for production email delivery.
-
-The signup UI now shows the send-code button as a `2:00` countdown after a code is sent, then returns to `Send code` when it expires.
+Confirm the Firebase Authentication email template and authorized domains in Firebase Console.

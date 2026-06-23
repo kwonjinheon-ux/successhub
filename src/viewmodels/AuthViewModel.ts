@@ -9,6 +9,7 @@ import {
   loginWithGoogle,
   logout,
   observeAuthState,
+  resendVerificationEmail,
   registerWithEmail
 } from "@/services/authService";
 import { getFirebaseConfigStatus, getFirebaseErrorMessage } from "@/services/firebaseClient";
@@ -37,9 +38,11 @@ export function useAuthViewModel() {
         setError(null);
         try {
           await registerWithEmail(email, password, displayName);
+          return true;
         } catch (nextError) {
           console.error(nextError);
           setError(getFirebaseErrorMessage(nextError));
+          return false;
         }
       },
       async login(email: string, password: string) {
@@ -85,6 +88,17 @@ export function useAuthViewModel() {
         } catch (nextError) {
           console.error(nextError);
           setError(getFirebaseErrorMessage(nextError));
+        }
+      },
+      async resendVerificationEmail() {
+        setError(null);
+        try {
+          await resendVerificationEmail();
+          return true;
+        } catch (nextError) {
+          console.error(nextError);
+          setError(getFirebaseErrorMessage(nextError));
+          return false;
         }
       }
     }),

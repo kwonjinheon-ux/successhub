@@ -41,7 +41,3 @@ env:
     availability:
       - BUILD
       - RUNTIME
-
-# Email verification codes require SMTP runtime variables.
-# Configure these as App Hosting secrets or runtime environment variables:
-# SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS, SMTP_FROM, EMAIL_CODE_PEPPER.
