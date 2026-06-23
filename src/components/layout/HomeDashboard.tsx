@@ -5,8 +5,11 @@ import { AuthPanel } from "@/components/auth/AuthPanel";
 import { MainNav } from "@/components/layout/MainNav";
 import { CommunityPanel } from "@/components/community/CommunityPanel";
 import { MarketPanel } from "@/components/market/MarketPanel";
+import { useAuth } from "@/hooks/useAuth";
 
 export function HomeDashboard() {
+  const auth = useAuth();
+
   return (
     <main className="page-shell">
       <MainNav />
@@ -20,9 +23,11 @@ export function HomeDashboard() {
           </p>
         </div>
         <div className="hero-actions">
-          <Link className="button" href="/signup">
-            Join
-          </Link>
+          {!auth.user ? (
+            <Link className="button" href="/signup">
+              Join
+            </Link>
+          ) : null}
           <Link className="button secondary" href="/market">
             Browse Market
           </Link>

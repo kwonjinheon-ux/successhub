@@ -80,6 +80,35 @@ Run `npm run build` and test signup after the Firebase cooldown clears.
 ## Test result
 `npm run build` passed.
 
+---
+
+## Work date
+2026-06-23
+
+## Work content
+Added an in-app Firebase email action handler at `/auth/action`. Verification emails now return to the app, apply the Firebase action code, reload the current Firebase user, and keep the user signed in when the same browser session is still available.
+
+## Modified files
+- `src/app/auth/action/page.tsx`
+- `src/components/auth/AuthActionPanel.tsx`
+- `src/components/auth/AuthPanel.tsx`
+- `src/components/layout/HomeDashboard.tsx`
+- `src/services/authService.ts`
+- `src/services/firebaseClient.ts`
+- `src/viewmodels/AuthViewModel.ts`
+
+## Firebase configuration
+The App Hosting domain must be authorized in Firebase Authentication because verification emails now use `/auth/action` as the email action URL.
+
+## Test method
+Run `npm run build`, then create a new account, open the verification link in the same browser, and confirm the app shows the member name and logout button only.
+
+## Test result
+`npm run build` passed.
+
+## Remaining issues
+If the verification link is opened in a different browser or device, Firebase can verify the email but cannot automatically sign the user into the original browser session.
+
 ## Remaining issues
 If Firebase has already rate-limited the current IP/email, wait several minutes before retrying.
 

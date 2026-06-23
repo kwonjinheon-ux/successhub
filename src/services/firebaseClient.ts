@@ -83,6 +83,14 @@ export function getFirebaseErrorMessage(error: unknown) {
       return "This email is already registered. Log in, then use resend verification email if needed.";
     }
 
+    if (error.message.includes("auth/expired-action-code")) {
+      return "This verification link has expired. Request a new verification email.";
+    }
+
+    if (error.message.includes("auth/invalid-action-code")) {
+      return "This verification link is invalid or was already used.";
+    }
+
     return error.message;
   }
 

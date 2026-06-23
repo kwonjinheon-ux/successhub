@@ -9,6 +9,7 @@ import {
   loginWithGoogle,
   logout,
   observeAuthState,
+  refreshCurrentUser,
   resendVerificationEmail,
   registerWithEmail
 } from "@/services/authService";
@@ -109,6 +110,17 @@ export function useAuthViewModel() {
           return false;
         } finally {
           setIsSubmitting(false);
+        }
+      },
+      async refreshUser() {
+        try {
+          const refreshedUser = await refreshCurrentUser();
+          setUser(refreshedUser);
+          return refreshedUser;
+        } catch (nextError) {
+          console.error(nextError);
+          setError(getFirebaseErrorMessage(nextError));
+          return null;
         }
       }
     }),

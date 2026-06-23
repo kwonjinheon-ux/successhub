@@ -6,6 +6,8 @@ import {
   OAuthProvider,
   RecaptchaVerifier,
   User,
+  applyActionCode,
+  checkActionCode,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   sendEmailVerification,
@@ -81,6 +83,41 @@ export async function resendVerificationEmail() {
   await sendVerificationEmail(currentUser);
 }
 
+export async function handleEmailActionCode(oobCode: string) {
+  const auth = getFirebaseAuth();
+  await checkActionCode(auth, oobCode);
+  await applyActionCode(auth, oobCode);
+
+  if (auth.currentUser) {
+    await auth.currentUser.reload();
+    await upsertUserProfile(auth.currentUser.uid, {
+      uid: auth.currentUser.uid,
+      email: auth.currentUser.email,
+      displayName: auth.currentUser.displayName,
+      emailVerified: auth.currentUser.emailVerified,
+      provider: "password"
+    });
+  }
+
+  return auth.currentUser;
+}
+
+export async function refreshCurrentUser() {
+  const currentUser = getFirebaseAuth().currentUser;
+
+  if (!currentUser) {
+    return null;
+  }
+
+  await currentUser.reload();
+  return getFirebaseAuth().currentUser;
+}
+
 async function sendVerificationEmail(user: User) {
-  await sendEmailVerification(user);
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://successhub--success-hub-2026.asia-southeast1.hosted.app";
+
+  await sendEmailVerification(user, {
+    url: `${origin}/auth/action`,
+    handleCodeInApp: true
+  });
 }

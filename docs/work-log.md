@@ -165,6 +165,34 @@ Run `npm run build`.
 ## Test result
 `npm run build` passed.
 
+---
+
+## Work date
+2026-06-23
+
+## Work content
+Added `/auth/action` to process Firebase email verification links in-app and updated logged-in UI so forms, Join, and resend controls disappear after verification.
+
+## Modified files
+- `src/app/auth/action/page.tsx`
+- `src/components/auth/AuthActionPanel.tsx`
+- `src/components/auth/AuthPanel.tsx`
+- `src/components/layout/HomeDashboard.tsx`
+- `src/services/authService.ts`
+- `src/services/firebaseClient.ts`
+- `src/viewmodels/AuthViewModel.ts`
+- `docs/authentication.md`
+- `docs/work-log.md`
+
+## Firebase configuration
+Firebase Authentication must allow the App Hosting domain for the email action URL.
+
+## Test method
+Run `npm run build`.
+
+## Test result
+`npm run build` passed.
+
 ## Remaining issues
 Retry signup after Firebase's temporary rate limit expires.
 

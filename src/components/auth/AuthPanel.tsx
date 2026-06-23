@@ -69,6 +69,37 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
     setIsResendingVerification(false);
   }
 
+  if (auth.user) {
+    return (
+      <section className="panel">
+        <h2>Member</h2>
+        <p className="success">Signed in as {auth.user.displayName || auth.user.email || auth.user.uid}</p>
+        {!auth.user.emailVerified ? (
+          <>
+            <p className="muted">Email verification is still required.</p>
+            <Button
+              className="secondary"
+              disabled={isResendingVerification || isResendCoolingDown || auth.isSubmitting}
+              type="button"
+              onClick={handleResendVerificationEmail}
+            >
+              {isResendingVerification
+                ? "Sending..."
+                : isResendCoolingDown
+                  ? `Resend in ${formatCountdown(resendRemainingSeconds)}`
+                  : "Resend verification email"}
+            </Button>
+          </>
+        ) : null}
+        {formMessage ? <p className="success">{formMessage}</p> : null}
+        {auth.error ? <p className="error">{auth.error}</p> : null}
+        <Button type="button" onClick={() => auth.logout()}>
+          Log out
+        </Button>
+      </section>
+    );
+  }
+
   return (
     <section className="panel">
       <h2>{mode === "signup" ? "Create account" : "Member login"}</h2>
@@ -136,32 +167,9 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
         </Button>
       </div>
       <p className="muted">Phone authentication service boundary is prepared in authService.</p>
-      {auth.user && !auth.user.emailVerified ? (
-        <Button
-          className="secondary"
-          disabled={isResendingVerification || isResendCoolingDown || auth.isSubmitting}
-          type="button"
-          onClick={handleResendVerificationEmail}
-        >
-          {isResendingVerification
-            ? "Sending..."
-            : isResendCoolingDown
-              ? `Resend in ${formatCountdown(resendRemainingSeconds)}`
-              : "Resend verification email"}
-        </Button>
-      ) : null}
       {formError ? <p className="error">{formError}</p> : null}
       {formMessage ? <p className="success">{formMessage}</p> : null}
       {auth.error ? <p className="error">{auth.error}</p> : null}
-      {auth.user ? (
-        <p className="success">
-          Signed in as {auth.user.displayName || auth.user.email || auth.user.uid}
-          {!auth.user.emailVerified ? " (email not verified)" : ""}
-          <Button className="link-button" type="button" onClick={() => auth.logout()}>
-            Log out
-          </Button>
-        </p>
-      ) : null}
     </section>
   );
 }
