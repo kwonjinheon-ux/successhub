@@ -82,3 +82,24 @@ Run `npm run build` and test signup after the Firebase cooldown clears.
 
 ## Remaining issues
 If Firebase has already rate-limited the current IP/email, wait several minutes before retrying.
+
+---
+
+## Work date
+2026-06-23
+
+## Work content
+Changed Firebase email verification to use Firebase Authentication's default action URL instead of passing the App Hosting `/login` URL. This avoids verification email delivery failures when the hosted domain is not authorized as a continue URL.
+
+## Modified files
+- `src/services/authService.ts`
+- `src/services/firebaseClient.ts`
+
+## Firebase configuration
+Firebase Authentication email template settings are used for sender, subject, and action link. The template currently sends from `noreply@success-hub-2026.firebaseapp.com`.
+
+## Test method
+Run `npm run build`, then create a new test account after any Firebase rate-limit cooldown clears.
+
+## Test result
+`npm run build` passed.

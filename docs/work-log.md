@@ -167,3 +167,26 @@ Run `npm run build`.
 
 ## Remaining issues
 Retry signup after Firebase's temporary rate limit expires.
+
+---
+
+## Work date
+2026-06-23
+
+## Work content
+Adjusted Firebase email verification to use the default Firebase Authentication email action URL so verification email delivery does not depend on App Hosting domain authorization.
+
+## Modified files
+- `src/services/authService.ts`
+- `src/services/firebaseClient.ts`
+- `docs/authentication.md`
+- `docs/work-log.md`
+
+## Firebase configuration
+Firebase Authentication's built-in email verification template is now the source of the verification link.
+
+## Test method
+Run `npm run build`.
+
+## Test result
+`npm run build` passed.

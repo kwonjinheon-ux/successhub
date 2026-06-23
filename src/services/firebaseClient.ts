@@ -63,6 +63,14 @@ export function getFirebaseErrorMessage(error: unknown) {
       return "This domain is not authorized in Firebase Authentication. Add the App Hosting domain in Firebase Authentication settings.";
     }
 
+    if (error.message.includes("auth/unauthorized-continue-uri")) {
+      return "Firebase blocked the email verification link URL. Use the default Firebase email action URL or add the domain to authorized domains.";
+    }
+
+    if (error.message.includes("auth/invalid-continue-uri")) {
+      return "Firebase could not create the email verification link because the continue URL is invalid.";
+    }
+
     if (error.message.includes("auth/invalid-api-key")) {
       return "The Firebase API key is invalid or missing. Check NEXT_PUBLIC_FIREBASE_API_KEY in App Hosting.";
     }

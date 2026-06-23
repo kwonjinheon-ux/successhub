@@ -82,10 +82,5 @@ export async function resendVerificationEmail() {
 }
 
 async function sendVerificationEmail(user: User) {
-  const origin = typeof window !== "undefined" ? window.location.origin : undefined;
-
-  await sendEmailVerification(user, {
-    url: origin ? `${origin}/login` : "https://successhub--success-hub-2026.asia-southeast1.hosted.app/login",
-    handleCodeInApp: false
-  });
+  await sendEmailVerification(user);
 }
