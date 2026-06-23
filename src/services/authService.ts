@@ -136,8 +136,8 @@ export async function sendPasswordReset(email: string) {
   const origin = getEmailActionOrigin();
 
   await sendPasswordResetEmail(getFirebaseAuth(), email, {
-    url: `${origin}/auth/action`,
-    handleCodeInApp: true
+    url: `${origin}/login`,
+    handleCodeInApp: false
   });
 }
 
