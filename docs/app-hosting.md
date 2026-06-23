@@ -59,18 +59,16 @@ The app uses these browser-safe environment variables:
 
 `NEXT_PUBLIC_FIREBASE_DATABASE_URL` remains optional for Realtime Database support.
 
-App Hosting now references secrets named `firebase-web-api-key` and `firebase-web-app-id`. Create or update them with:
+App Hosting now references a secret named `firebase-web-api-key`. Create or update it with:
 
 ```bash
-npx -y firebase-tools@latest apphosting:secrets:set firebase-web-api-key --project nature-link-abd07
-npx -y firebase-tools@latest apphosting:secrets:set firebase-web-app-id --project nature-link-abd07
+npx -y firebase-tools@latest apphosting:secrets:set firebase-web-api-key --project success-hub-2026
 ```
 
 If access is not automatically granted, run:
 
 ```bash
-npx -y firebase-tools@latest apphosting:secrets:grantaccess firebase-web-api-key --project nature-link-abd07
-npx -y firebase-tools@latest apphosting:secrets:grantaccess firebase-web-app-id --project nature-link-abd07
+npx -y firebase-tools@latest apphosting:secrets:grantaccess firebase-web-api-key --project success-hub-2026
 ```
 
 ## Test method

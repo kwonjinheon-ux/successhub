@@ -105,7 +105,7 @@ Ran project-wide searches for SSR-unsafe browser APIs, local JSON/file DB depend
 `npm install` completed successfully. `npm run build` passed. No matching SSR-unsafe browser API usage, local file DB usage, or leaked key pattern was found.
 
 ## Remaining issues
-Create the App Hosting secrets `firebase-web-api-key` and `firebase-web-app-id`, then verify the hosted URL after rollout.
+Create the App Hosting secret `firebase-web-api-key`, then verify the hosted URL after rollout.
 
 ## Next work
 Push the fix to GitHub and verify the App Hosting deployment.

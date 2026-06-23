@@ -12,32 +12,32 @@ env:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: nature-link-abd07
+    value: success-hub-2026
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: nature-link-abd07.firebaseapp.com
+    value: success-hub-2026.firebaseapp.com
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_DATABASE_URL
-    value: https://nature-link-abd07-default-rtdb.firebaseio.com
+    value: https://success-hub-2026-default-rtdb.firebaseio.com
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: nature-link-abd07.firebasestorage.app
+    value: success-hub-2026.firebasestorage.app
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    value: "1009210681942"
+    value: "823020794850"
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    secret: firebase-web-app-id
+    value: 1:823020794850:web:eac10afee75e267afabfbb
     availability:
       - BUILD
       - RUNTIME
