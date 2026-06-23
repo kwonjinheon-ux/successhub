@@ -18,6 +18,7 @@ export function AuthActionPanel() {
   const isPasswordReset = mode === "resetPassword" && Boolean(oobCode);
   const [status, setStatus] = useState<"checking" | "ready" | "success" | "error">(isPasswordReset ? "checking" : "checking");
   const [message, setMessage] = useState("Confirming your email address...");
+  const [resetMessageType, setResetMessageType] = useState<"muted" | "error">("muted");
   const [resetEmail, setResetEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -43,6 +44,7 @@ export function AuthActionPanel() {
 
           setResetEmail(email);
           setStatus("ready");
+          setResetMessageType("muted");
           setMessage("Choose a new password.");
           return;
         }
@@ -85,6 +87,7 @@ export function AuthActionPanel() {
   async function handlePasswordResetSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage("");
+    setResetMessageType("muted");
 
     if (!oobCode) {
       setStatus("error");
@@ -94,12 +97,14 @@ export function AuthActionPanel() {
 
     if (!isPasswordStrong) {
       setStatus("ready");
+      setResetMessageType("error");
       setMessage("Password must include at least 8 characters, lowercase, uppercase, number, and special character.");
       return;
     }
 
     if (!isPasswordMatch) {
       setStatus("ready");
+      setResetMessageType("error");
       setMessage("Password confirmation does not match.");
       return;
     }
@@ -173,7 +178,7 @@ export function AuthActionPanel() {
               {isSubmitting ? "Updating..." : "Update password"}
             </Button>
           </form>
-          {message ? <p className="muted">{message}</p> : null}
+          {message ? <p className={resetMessageType}>{message}</p> : null}
         </section>
       </main>
     );
