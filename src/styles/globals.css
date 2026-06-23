@@ -185,7 +185,20 @@ textarea {
   background: #ffffff;
   border-color: var(--line);
   color: var(--ink);
+  gap: 10px;
   width: 100%;
+}
+
+.button-icon {
+  flex: 0 0 18px;
+  height: 18px;
+  width: 18px;
+}
+
+.join-under-login {
+  background: #eef3f4;
+  border-color: #c9d9dc;
+  color: var(--accent-strong);
 }
 
 .link-button {
