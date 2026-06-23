@@ -7,10 +7,13 @@ import {
   RecaptchaVerifier,
   User,
   applyActionCode,
+  browserLocalPersistence,
+  browserSessionPersistence,
   checkActionCode,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   sendEmailVerification,
+  setPersistence,
   signInWithEmailAndPassword,
   signInWithPhoneNumber,
   signInWithPopup,
@@ -20,11 +23,24 @@ import {
 import { getFirebaseAuth } from "@/services/firebaseClient";
 import { upsertUserProfile } from "@/services/databaseService";
 
+const AUTH_EXPIRES_AT_KEY = "successHubAuthExpiresAt";
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
 export function observeAuthState(callback: (user: User | null) => void) {
-  return onAuthStateChanged(getFirebaseAuth(), callback);
+  return onAuthStateChanged(getFirebaseAuth(), async (user) => {
+    if (user && isPersistedSessionExpired()) {
+      clearRememberExpiry();
+      await signOut(getFirebaseAuth());
+      callback(null);
+      return;
+    }
+
+    callback(user);
+  });
 }
 
-export async function registerWithEmail(email: string, password: string, displayName: string) {
+export async function registerWithEmail(email: string, password: string, displayName: string, rememberFor30Days = false) {
+  await setAuthPersistence(rememberFor30Days);
   const credential = await createUserWithEmailAndPassword(getFirebaseAuth(), email, password);
   await updateProfile(credential.user, { displayName });
   await sendVerificationEmail(credential.user);
@@ -38,7 +54,8 @@ export async function registerWithEmail(email: string, password: string, display
   return credential.user;
 }
 
-export async function loginWithEmail(email: string, password: string) {
+export async function loginWithEmail(email: string, password: string, rememberFor30Days = false) {
+  await setAuthPersistence(rememberFor30Days);
   const credential = await signInWithEmailAndPassword(getFirebaseAuth(), email, password);
 
   if (!credential.user.emailVerified) {
@@ -49,8 +66,18 @@ export async function loginWithEmail(email: string, password: string) {
   return credential;
 }
 
-export async function loginWithGoogle() {
-  return signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider());
+export async function loginWithGoogle(rememberFor30Days = false) {
+  await setAuthPersistence(rememberFor30Days);
+  const credential = await signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider());
+  await upsertUserProfile(credential.user.uid, {
+    uid: credential.user.uid,
+    email: credential.user.email,
+    displayName: credential.user.displayName,
+    photoURL: credential.user.photoURL,
+    emailVerified: credential.user.emailVerified,
+    provider: "google"
+  });
+  return credential;
 }
 
 export async function loginWithFacebook() {
@@ -66,7 +93,20 @@ export async function startPhoneLogin(phoneNumber: string, verifier: RecaptchaVe
 }
 
 export async function logout() {
+  clearRememberExpiry();
   return signOut(getFirebaseAuth());
+}
+
+export async function updateCurrentUserProfile(profile: { displayName?: string | null; photoURL?: string | null }) {
+  const currentUser = getFirebaseAuth().currentUser;
+
+  if (!currentUser) {
+    throw new Error("Login is required to update profile.");
+  }
+
+  await updateProfile(currentUser, profile);
+  await currentUser.reload();
+  return getFirebaseAuth().currentUser;
 }
 
 export async function resendVerificationEmail() {
@@ -120,4 +160,39 @@ async function sendVerificationEmail(user: User) {
     url: `${origin}/auth/action`,
     handleCodeInApp: true
   });
+}
+
+function setAuthPersistence(rememberFor30Days: boolean) {
+  setRememberExpiry(rememberFor30Days);
+  return setPersistence(getFirebaseAuth(), rememberFor30Days ? browserLocalPersistence : browserSessionPersistence);
+}
+
+function setRememberExpiry(rememberFor30Days: boolean) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (rememberFor30Days) {
+    window.localStorage.setItem(AUTH_EXPIRES_AT_KEY, String(Date.now() + THIRTY_DAYS_MS));
+    return;
+  }
+
+  clearRememberExpiry();
+}
+
+function isPersistedSessionExpired() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const expiresAt = Number(window.localStorage.getItem(AUTH_EXPIRES_AT_KEY));
+  return Boolean(expiresAt && Date.now() > expiresAt);
+}
+
+function clearRememberExpiry() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.removeItem(AUTH_EXPIRES_AT_KEY);
 }

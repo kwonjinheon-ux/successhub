@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from "react";
 import type { UserModel } from "@/models/UserModel";
+import { updateCurrentUserProfile } from "@/services/authService";
 import { readUserProfile, upsertUserProfile } from "@/services/databaseService";
 import { getFirebaseErrorMessage } from "@/services/firebaseClient";
+import { uploadProfileImage } from "@/services/storageService";
 
 export function useProfileViewModel(uid?: string) {
   const [profile, setProfile] = useState<UserModel | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!uid) {
@@ -21,20 +25,33 @@ export function useProfileViewModel(uid?: string) {
     });
   }, [uid]);
 
-  async function saveProfile(nextProfile: Partial<UserModel>) {
+  async function saveProfile(nextProfile: Partial<UserModel>, photoFile?: File | null) {
     if (!uid) {
       throw new Error("Login is required to update profile.");
     }
 
     try {
+      setIsSaving(true);
       setError(null);
-      await upsertUserProfile(uid, nextProfile);
-      setProfile((current) => ({ ...current, ...nextProfile, uid } as UserModel));
+      setMessage(null);
+
+      const photoURL = photoFile ? await uploadProfileImage(uid, photoFile) : nextProfile.photoURL;
+      const savedProfile = { ...nextProfile, photoURL };
+
+      await updateCurrentUserProfile({
+        displayName: savedProfile.displayName,
+        photoURL: savedProfile.photoURL
+      });
+      await upsertUserProfile(uid, savedProfile);
+      setProfile((current) => ({ ...current, ...savedProfile, uid } as UserModel));
+      setMessage("Profile updated.");
     } catch (nextError) {
       console.error(nextError);
       setError(getFirebaseErrorMessage(nextError));
+    } finally {
+      setIsSaving(false);
     }
   }
 
-  return { profile, error, saveProfile };
+  return { profile, isSaving, error, message, saveProfile };
 }

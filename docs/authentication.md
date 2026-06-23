@@ -109,6 +109,36 @@ Run `npm run build`, then create a new account, open the verification link in th
 ## Remaining issues
 If the verification link is opened in a different browser or device, Firebase can verify the email but cannot automatically sign the user into the original browser session.
 
+---
+
+## Work date
+2026-06-23
+
+## Work content
+Improved member join/login with a prominent Google sign-in option, a 30-day signed-in option backed by Firebase Auth persistence, cleaner password rule chips, and logged-in profile editing.
+
+## Modified files
+- `src/components/auth/AuthPanel.tsx`
+- `src/components/auth/ProfilePanel.tsx`
+- `src/components/layout/HomeDashboard.tsx`
+- `src/services/authService.ts`
+- `src/viewmodels/AuthViewModel.ts`
+- `src/viewmodels/ProfileViewModel.ts`
+- `src/services/storageService.ts`
+- `src/styles/globals.css`
+
+## Firebase configuration
+Google sign-in must be enabled in Firebase Authentication. Profile photos are uploaded to Firebase Storage under `profiles/{uid}` and require the existing Storage Rules.
+
+## Test method
+Run `npm run build`.
+
+## Test result
+`npm run build` passed.
+
+## Remaining issues
+The "Keep me signed in for 30 days" option uses Firebase local persistence and signs the user out on the next app load after the 30-day expiry.
+
 ## Remaining issues
 If Firebase has already rate-limited the current IP/email, wait several minutes before retrying.
 

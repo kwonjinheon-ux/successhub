@@ -36,11 +36,11 @@ export function useAuthViewModel() {
 
   const actions = useMemo(
     () => ({
-      async register(email: string, password: string, displayName: string) {
+      async register(email: string, password: string, displayName: string, rememberFor30Days = false) {
         setError(null);
         setIsSubmitting(true);
         try {
-          await registerWithEmail(email, password, displayName);
+          await registerWithEmail(email, password, displayName, rememberFor30Days);
           return true;
         } catch (nextError) {
           console.error(nextError);
@@ -50,11 +50,11 @@ export function useAuthViewModel() {
           setIsSubmitting(false);
         }
       },
-      async login(email: string, password: string) {
+      async login(email: string, password: string, rememberFor30Days = false) {
         setError(null);
         setIsSubmitting(true);
         try {
-          await loginWithEmail(email, password);
+          await loginWithEmail(email, password, rememberFor30Days);
         } catch (nextError) {
           console.error(nextError);
           setError(getFirebaseErrorMessage(nextError));
@@ -62,10 +62,10 @@ export function useAuthViewModel() {
           setIsSubmitting(false);
         }
       },
-      async loginWithGoogle() {
+      async loginWithGoogle(rememberFor30Days = false) {
         setError(null);
         try {
-          await loginWithGoogle();
+          await loginWithGoogle(rememberFor30Days);
         } catch (nextError) {
           console.error(nextError);
           setError(getFirebaseErrorMessage(nextError));

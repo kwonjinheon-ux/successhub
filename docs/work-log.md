@@ -171,6 +171,34 @@ Run `npm run build`.
 2026-06-23
 
 ## Work content
+Added Google sign-in to join/login, 30-day auth persistence, cleaner signup validation chips, and editable member profile details with profile photo upload.
+
+## Modified files
+- `src/components/auth/AuthPanel.tsx`
+- `src/components/auth/ProfilePanel.tsx`
+- `src/components/layout/HomeDashboard.tsx`
+- `src/services/authService.ts`
+- `src/viewmodels/AuthViewModel.ts`
+- `src/viewmodels/ProfileViewModel.ts`
+- `src/styles/globals.css`
+- `docs/authentication.md`
+- `docs/work-log.md`
+
+## Firebase configuration
+Google provider must be enabled, and Firebase Storage must allow authenticated users to write profile images to their own `profiles/{uid}` path.
+
+## Test method
+Run `npm run build`.
+
+## Test result
+`npm run build` passed.
+
+---
+
+## Work date
+2026-06-23
+
+## Work content
 Added `/auth/action` to process Firebase email verification links in-app and updated logged-in UI so forms, Join, and resend controls disappear after verification.
 
 ## Modified files

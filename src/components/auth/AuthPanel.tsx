@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/common/Button";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,6 +23,7 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const [formMessage, setFormMessage] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [rememberFor30Days, setRememberFor30Days] = useState(false);
 
   const passwordChecks = useMemo(() => passwordRules.map((rule) => ({ ...rule, isValid: rule.test(password) })), [password]);
   const resendRemainingSeconds = useCountdown(resendAvailableAt);
@@ -45,7 +47,7 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
         return;
       }
 
-      const created = await auth.register(email, password, displayName);
+      const created = await auth.register(email, password, displayName, rememberFor30Days);
       if (created) {
         setFormMessage("Account created. Check your email and open the Firebase verification link before logging in.");
         setResendAvailableAt(Date.now() + 2 * 60 * 1000);
@@ -53,7 +55,13 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
       return;
     }
 
-    await auth.login(email, password);
+    await auth.login(email, password, rememberFor30Days);
+  }
+
+  async function handleGoogleLogin() {
+    setFormError(null);
+    setFormMessage(null);
+    await auth.loginWithGoogle(rememberFor30Days);
   }
 
   async function handleResendVerificationEmail() {
@@ -93,6 +101,9 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
         ) : null}
         {formMessage ? <p className="success">{formMessage}</p> : null}
         {auth.error ? <p className="error">{auth.error}</p> : null}
+        <Link className="button secondary" href="/profile">
+          Edit profile
+        </Link>
         <Button type="button" onClick={() => auth.logout()}>
           Log out
         </Button>
@@ -103,6 +114,12 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   return (
     <section className="panel">
       <h2>{mode === "signup" ? "Create account" : "Member login"}</h2>
+      <Button className="google-button" type="button" onClick={handleGoogleLogin}>
+        Continue with Google
+      </Button>
+      <div className="auth-divider">
+        <span>or</span>
+      </div>
       <form className="form-grid" onSubmit={handleSubmit}>
         {mode === "signup" ? (
           <label>
@@ -151,14 +168,19 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
             </div>
           </>
         ) : null}
+        <label className="checkbox-row">
+          <input
+            checked={rememberFor30Days}
+            type="checkbox"
+            onChange={(event) => setRememberFor30Days(event.target.checked)}
+          />
+          Keep me signed in for 30 days
+        </label>
         <Button disabled={auth.isSubmitting} type="submit">
           {auth.isSubmitting ? "Please wait..." : mode === "signup" ? "Sign up" : "Log in"}
         </Button>
       </form>
-      <div className="social-row">
-        <Button className="secondary" type="button" onClick={() => auth.loginWithGoogle()}>
-          Google
-        </Button>
+      <div className="social-row secondary-social-row">
         <Button className="secondary" type="button" onClick={() => auth.loginWithFacebook()}>
           Facebook
         </Button>
