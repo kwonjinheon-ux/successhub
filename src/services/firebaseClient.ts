@@ -7,19 +7,76 @@ import { FirebaseStorage, getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "nature-link-abd07.firebaseapp.com",
-  databaseURL:
-    process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || "https://nature-link-abd07-default-rtdb.firebaseio.com",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "nature-link-abd07",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "nature-link-abd07.firebasestorage.app",
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "1009210681942",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:1009210681942:web:pending-web-app-id",
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
+const requiredClientEnv = [
+  "NEXT_PUBLIC_FIREBASE_API_KEY",
+  "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+  "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+  "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+  "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+  "NEXT_PUBLIC_FIREBASE_APP_ID"
+] as const;
+
+type FirebaseClientEnvName = (typeof requiredClientEnv)[number];
+
+const envValueByName: Record<FirebaseClientEnvName, string | undefined> = {
+  NEXT_PUBLIC_FIREBASE_API_KEY: firebaseConfig.apiKey,
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: firebaseConfig.authDomain,
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: firebaseConfig.projectId,
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: firebaseConfig.storageBucket,
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: firebaseConfig.messagingSenderId,
+  NEXT_PUBLIC_FIREBASE_APP_ID: firebaseConfig.appId
+};
+
+export class FirebaseConfigError extends Error {
+  readonly missingKeys: FirebaseClientEnvName[];
+
+  constructor(missingKeys: FirebaseClientEnvName[]) {
+    super(`Firebase configuration is missing: ${missingKeys.join(", ")}`);
+    this.name = "FirebaseConfigError";
+    this.missingKeys = missingKeys;
+  }
+}
+
+export function getFirebaseConfigStatus() {
+  const missingKeys = requiredClientEnv.filter((key) => !envValueByName[key]);
+  return {
+    isReady: missingKeys.length === 0,
+    missingKeys
+  };
+}
+
+export function getFirebaseErrorMessage(error: unknown) {
+  if (error instanceof FirebaseConfigError) {
+    return `Firebase environment variables are missing: ${error.missingKeys.join(", ")}.`;
+  }
+
+  if (error instanceof Error) {
+    if (error.message.includes("auth/unauthorized-domain")) {
+      return "This domain is not authorized in Firebase Authentication. Add the App Hosting domain in Firebase Authentication settings.";
+    }
+
+    if (error.message.includes("auth/invalid-api-key")) {
+      return "The Firebase API key is invalid or missing. Check NEXT_PUBLIC_FIREBASE_API_KEY in App Hosting.";
+    }
+
+    return error.message;
+  }
+
+  return "Firebase is temporarily unavailable.";
+}
+
 function assertFirebaseConfig() {
-  if (!firebaseConfig.apiKey || !firebaseConfig.appId) {
-    throw new Error("Firebase web configuration is missing. Set NEXT_PUBLIC_FIREBASE_API_KEY and NEXT_PUBLIC_FIREBASE_APP_ID.");
+  const status = getFirebaseConfigStatus();
+  if (!status.isReady) {
+    throw new FirebaseConfigError(status.missingKeys);
   }
 }
 

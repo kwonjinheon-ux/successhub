@@ -71,3 +71,41 @@ The exposed key still exists in the pushed Git history until the initial commit 
 
 ## Next work
 Revoke or rotate the leaked key in Google Cloud, then rewrite the initial commit and force-push the sanitized repository.
+
+---
+
+## Work date
+2026-06-23
+
+## Work content
+Debugged and fixed the App Hosting client-side startup failure caused by Firebase configuration throwing during client initialization.
+
+## Modified files
+- `.env.example`
+- `apphosting.yaml`
+- `docs/app-hosting.md`
+- `docs/work-log.md`
+- `src/app/error.tsx`
+- `src/components/auth/ProfilePanel.tsx`
+- `src/components/community/CommunityPanel.tsx`
+- `src/components/market/MarketPanel.tsx`
+- `src/services/firebaseClient.ts`
+- `src/viewmodels/AuthViewModel.ts`
+- `src/viewmodels/PostViewModel.ts`
+- `src/viewmodels/MarketViewModel.ts`
+- `src/viewmodels/ProfileViewModel.ts`
+
+## Firebase configuration
+Firebase client config now uses only `NEXT_PUBLIC_` variables for browser code. Missing values are reported as UI errors instead of crashing the whole app.
+
+## Test method
+Ran project-wide searches for SSR-unsafe browser APIs, local JSON/file DB dependencies, and leaked Google API key patterns. Ran `npm install` and `npm run build`.
+
+## Test result
+`npm install` completed successfully. `npm run build` passed. No matching SSR-unsafe browser API usage, local file DB usage, or leaked key pattern was found.
+
+## Remaining issues
+Create the App Hosting secrets `firebase-web-api-key` and `firebase-web-app-id`, then verify the hosted URL after rollout.
+
+## Next work
+Push the fix to GitHub and verify the App Hosting deployment.

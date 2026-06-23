@@ -3,12 +3,21 @@
 import { useEffect, useState } from "react";
 import type { MarketItemModel } from "@/models/MarketItemModel";
 import { createMarketItem, subscribeToMarketItems } from "@/services/databaseService";
+import { getFirebaseErrorMessage } from "@/services/firebaseClient";
 
 export function useMarketViewModel(uid?: string, displayName?: string | null) {
   const [items, setItems] = useState<MarketItemModel[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => subscribeToMarketItems(setItems), []);
+  useEffect(() => {
+    try {
+      return subscribeToMarketItems(setItems);
+    } catch (nextError) {
+      console.error(nextError);
+      setError(getFirebaseErrorMessage(nextError));
+    }
+  }, []);
 
   async function submitMarketItem(title: string, description: string, price: number, location: string) {
     if (!uid) {
@@ -17,6 +26,7 @@ export function useMarketViewModel(uid?: string, displayName?: string | null) {
 
     setIsSaving(true);
     try {
+      setError(null);
       await createMarketItem({
         sellerId: uid,
         sellerName: displayName || "Success Hub member",
@@ -27,10 +37,13 @@ export function useMarketViewModel(uid?: string, displayName?: string | null) {
         status: "available",
         imageUrls: []
       });
+    } catch (nextError) {
+      console.error(nextError);
+      setError(getFirebaseErrorMessage(nextError));
     } finally {
       setIsSaving(false);
     }
   }
 
-  return { items, isSaving, submitMarketItem };
+  return { items, isSaving, error, submitMarketItem };
 }

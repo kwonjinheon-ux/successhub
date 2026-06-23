@@ -7,7 +7,7 @@ import { useMarket } from "@/hooks/useMarket";
 
 export function MarketPanel({ compact = false }: { compact?: boolean }) {
   const auth = useAuth();
-  const { items, isSaving, submitMarketItem } = useMarket(auth.user?.uid, auth.user?.displayName);
+  const { items, isSaving, error, submitMarketItem } = useMarket(auth.user?.uid, auth.user?.displayName);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("0");
@@ -48,6 +48,7 @@ export function MarketPanel({ compact = false }: { compact?: boolean }) {
           </Button>
         </form>
       ) : null}
+      {error ? <p className="error">{error}</p> : null}
       <div className="list">
         {items.slice(0, compact ? 3 : 20).map((item) => (
           <article className="list-item" key={item.id}>

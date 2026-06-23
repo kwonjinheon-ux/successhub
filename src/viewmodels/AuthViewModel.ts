@@ -11,17 +11,24 @@ import {
   observeAuthState,
   registerWithEmail
 } from "@/services/authService";
+import { getFirebaseConfigStatus, getFirebaseErrorMessage } from "@/services/firebaseClient";
 
 export function useAuthViewModel() {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => getFirebaseConfigStatus().isReady);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    return observeAuthState((nextUser) => {
-      setUser(nextUser);
+    try {
+      return observeAuthState((nextUser) => {
+        setUser(nextUser);
+        setIsLoading(false);
+      });
+    } catch (nextError) {
+      console.error(nextError);
+      setError(getFirebaseErrorMessage(nextError));
       setIsLoading(false);
-    });
+    }
   }, []);
 
   const actions = useMemo(
@@ -31,7 +38,8 @@ export function useAuthViewModel() {
         try {
           await registerWithEmail(email, password, displayName);
         } catch (nextError) {
-          setError(nextError instanceof Error ? nextError.message : "Registration failed.");
+          console.error(nextError);
+          setError(getFirebaseErrorMessage(nextError));
         }
       },
       async login(email: string, password: string) {
@@ -39,13 +47,46 @@ export function useAuthViewModel() {
         try {
           await loginWithEmail(email, password);
         } catch (nextError) {
-          setError(nextError instanceof Error ? nextError.message : "Login failed.");
+          console.error(nextError);
+          setError(getFirebaseErrorMessage(nextError));
         }
       },
-      loginWithGoogle,
-      loginWithFacebook,
-      loginWithApple,
-      logout
+      async loginWithGoogle() {
+        setError(null);
+        try {
+          await loginWithGoogle();
+        } catch (nextError) {
+          console.error(nextError);
+          setError(getFirebaseErrorMessage(nextError));
+        }
+      },
+      async loginWithFacebook() {
+        setError(null);
+        try {
+          await loginWithFacebook();
+        } catch (nextError) {
+          console.error(nextError);
+          setError(getFirebaseErrorMessage(nextError));
+        }
+      },
+      async loginWithApple() {
+        setError(null);
+        try {
+          await loginWithApple();
+        } catch (nextError) {
+          console.error(nextError);
+          setError(getFirebaseErrorMessage(nextError));
+        }
+      },
+      async logout() {
+        setError(null);
+        try {
+          await logout();
+        } catch (nextError) {
+          console.error(nextError);
+          setError(getFirebaseErrorMessage(nextError));
+        }
+      }
     }),
     []
   );

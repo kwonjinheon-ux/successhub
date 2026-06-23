@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import type { UserModel } from "@/models/UserModel";
 import { readUserProfile, upsertUserProfile } from "@/services/databaseService";
+import { getFirebaseErrorMessage } from "@/services/firebaseClient";
 
 export function useProfileViewModel(uid?: string) {
   const [profile, setProfile] = useState<UserModel | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!uid) {
@@ -13,7 +15,10 @@ export function useProfileViewModel(uid?: string) {
       return;
     }
 
-    readUserProfile(uid).then(setProfile);
+    readUserProfile(uid).then(setProfile).catch((nextError) => {
+      console.error(nextError);
+      setError(getFirebaseErrorMessage(nextError));
+    });
   }, [uid]);
 
   async function saveProfile(nextProfile: Partial<UserModel>) {
@@ -21,9 +26,15 @@ export function useProfileViewModel(uid?: string) {
       throw new Error("Login is required to update profile.");
     }
 
-    await upsertUserProfile(uid, nextProfile);
-    setProfile((current) => ({ ...current, ...nextProfile, uid } as UserModel));
+    try {
+      setError(null);
+      await upsertUserProfile(uid, nextProfile);
+      setProfile((current) => ({ ...current, ...nextProfile, uid } as UserModel));
+    } catch (nextError) {
+      console.error(nextError);
+      setError(getFirebaseErrorMessage(nextError));
+    }
   }
 
-  return { profile, saveProfile };
+  return { profile, error, saveProfile };
 }

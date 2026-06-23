@@ -7,7 +7,7 @@ import { usePosts } from "@/hooks/usePosts";
 
 export function CommunityPanel({ compact = false }: { compact?: boolean }) {
   const auth = useAuth();
-  const { posts, isSaving, submitPost } = usePosts(auth.user?.uid, auth.user?.displayName);
+  const { posts, isSaving, error, submitPost } = usePosts(auth.user?.uid, auth.user?.displayName);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
 
@@ -36,6 +36,7 @@ export function CommunityPanel({ compact = false }: { compact?: boolean }) {
           </Button>
         </form>
       ) : null}
+      {error ? <p className="error">{error}</p> : null}
       <div className="list">
         {posts.slice(0, compact ? 3 : 20).map((post) => (
           <article className="list-item" key={post.id}>

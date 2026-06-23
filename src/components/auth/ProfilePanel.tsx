@@ -7,7 +7,7 @@ import { useProfileViewModel } from "@/viewmodels/ProfileViewModel";
 
 export function ProfilePanel() {
   const auth = useAuth();
-  const { profile, saveProfile } = useProfileViewModel(auth.user?.uid);
+  const { profile, error, saveProfile } = useProfileViewModel(auth.user?.uid);
   const [displayName, setDisplayName] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -39,6 +39,7 @@ export function ProfilePanel() {
       ) : (
         <p className="muted">Login is required to edit profile data in Firebase Realtime Database.</p>
       )}
+      {error ? <p className="error">{error}</p> : null}
     </section>
   );
 }
