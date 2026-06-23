@@ -40,9 +40,8 @@ export async function loginWithEmail(email: string, password: string) {
   const credential = await signInWithEmailAndPassword(getFirebaseAuth(), email, password);
 
   if (!credential.user.emailVerified) {
-    await sendVerificationEmail(credential.user);
     await signOut(getFirebaseAuth());
-    throw new Error("Please verify your email address first. We sent a new verification email.");
+    throw new Error("Please verify your email address first. Check the Firebase verification email sent when the account was created.");
   }
 
   return credential;

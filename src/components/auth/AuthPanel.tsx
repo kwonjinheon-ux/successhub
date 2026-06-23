@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/common/Button";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -17,12 +17,15 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [isResendingVerification, setIsResendingVerification] = useState(false);
+  const [resendAvailableAt, setResendAvailableAt] = useState<number | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [formMessage, setFormMessage] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
   const passwordChecks = useMemo(() => passwordRules.map((rule) => ({ ...rule, isValid: rule.test(password) })), [password]);
+  const resendRemainingSeconds = useCountdown(resendAvailableAt);
+  const isResendCoolingDown = resendRemainingSeconds > 0;
   const isPasswordStrong = passwordChecks.every((rule) => rule.isValid);
   const isPasswordMatch = password.length > 0 && password === passwordConfirm;
 
@@ -45,6 +48,7 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
       const created = await auth.register(email, password, displayName);
       if (created) {
         setFormMessage("Account created. Check your email and open the Firebase verification link before logging in.");
+        setResendAvailableAt(Date.now() + 2 * 60 * 1000);
       }
       return;
     }
@@ -60,6 +64,7 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
     const sent = await auth.resendVerificationEmail();
     if (sent) {
       setFormMessage("Verification email sent again. Check your inbox.");
+      setResendAvailableAt(Date.now() + 2 * 60 * 1000);
     }
     setIsResendingVerification(false);
   }
@@ -115,7 +120,9 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
             </div>
           </>
         ) : null}
-        <Button type="submit">{mode === "signup" ? "Sign up" : "Log in"}</Button>
+        <Button disabled={auth.isSubmitting} type="submit">
+          {auth.isSubmitting ? "Please wait..." : mode === "signup" ? "Sign up" : "Log in"}
+        </Button>
       </form>
       <div className="social-row">
         <Button className="secondary" type="button" onClick={() => auth.loginWithGoogle()}>
@@ -130,8 +137,17 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
       </div>
       <p className="muted">Phone authentication service boundary is prepared in authService.</p>
       {auth.user && !auth.user.emailVerified ? (
-        <Button className="secondary" disabled={isResendingVerification} type="button" onClick={handleResendVerificationEmail}>
-          {isResendingVerification ? "Sending..." : "Resend verification email"}
+        <Button
+          className="secondary"
+          disabled={isResendingVerification || isResendCoolingDown || auth.isSubmitting}
+          type="button"
+          onClick={handleResendVerificationEmail}
+        >
+          {isResendingVerification
+            ? "Sending..."
+            : isResendCoolingDown
+              ? `Resend in ${formatCountdown(resendRemainingSeconds)}`
+              : "Resend verification email"}
         </Button>
       ) : null}
       {formError ? <p className="error">{formError}</p> : null}
@@ -148,4 +164,33 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
       ) : null}
     </section>
   );
+}
+
+function useCountdown(expiresAt: number | null) {
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+
+  useEffect(() => {
+    if (!expiresAt) {
+      setRemainingSeconds(0);
+      return;
+    }
+
+    const expiryTime = expiresAt;
+
+    function updateRemainingSeconds() {
+      setRemainingSeconds(Math.max(0, Math.ceil((expiryTime - Date.now()) / 1000)));
+    }
+
+    updateRemainingSeconds();
+    const intervalId = window.setInterval(updateRemainingSeconds, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [expiresAt]);
+
+  return remainingSeconds;
+}
+
+function formatCountdown(totalSeconds: number) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }

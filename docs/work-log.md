@@ -139,3 +139,31 @@ Run dependency installation and production build.
 
 ## Remaining issues
 Confirm the Firebase Authentication email template and authorized domains in Firebase Console.
+
+---
+
+## Work date
+2026-06-23
+
+## Work content
+Handled Firebase `auth/too-many-requests` more safely by disabling duplicate form submits, adding a resend verification cooldown, and stopping automatic verification email sends during unverified login attempts.
+
+## Modified files
+- `src/components/auth/AuthPanel.tsx`
+- `src/services/authService.ts`
+- `src/services/firebaseClient.ts`
+- `src/viewmodels/AuthViewModel.ts`
+- `docs/authentication.md`
+- `docs/work-log.md`
+
+## Firebase configuration
+No Firebase Console change is required for this code fix. Existing Firebase rate limits can only be cleared by waiting.
+
+## Test method
+Run `npm run build`.
+
+## Test result
+`npm run build` passed.
+
+## Remaining issues
+Retry signup after Firebase's temporary rate limit expires.

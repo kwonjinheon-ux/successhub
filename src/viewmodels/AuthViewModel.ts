@@ -17,6 +17,7 @@ import { getFirebaseConfigStatus, getFirebaseErrorMessage } from "@/services/fir
 export function useAuthViewModel() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(() => getFirebaseConfigStatus().isReady);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export function useAuthViewModel() {
     () => ({
       async register(email: string, password: string, displayName: string) {
         setError(null);
+        setIsSubmitting(true);
         try {
           await registerWithEmail(email, password, displayName);
           return true;
@@ -43,15 +45,20 @@ export function useAuthViewModel() {
           console.error(nextError);
           setError(getFirebaseErrorMessage(nextError));
           return false;
+        } finally {
+          setIsSubmitting(false);
         }
       },
       async login(email: string, password: string) {
         setError(null);
+        setIsSubmitting(true);
         try {
           await loginWithEmail(email, password);
         } catch (nextError) {
           console.error(nextError);
           setError(getFirebaseErrorMessage(nextError));
+        } finally {
+          setIsSubmitting(false);
         }
       },
       async loginWithGoogle() {
@@ -92,6 +99,7 @@ export function useAuthViewModel() {
       },
       async resendVerificationEmail() {
         setError(null);
+        setIsSubmitting(true);
         try {
           await resendVerificationEmail();
           return true;
@@ -99,11 +107,13 @@ export function useAuthViewModel() {
           console.error(nextError);
           setError(getFirebaseErrorMessage(nextError));
           return false;
+        } finally {
+          setIsSubmitting(false);
         }
       }
     }),
     []
   );
 
-  return { user, isLoading, error, ...actions };
+  return { user, isLoading, isSubmitting, error, ...actions };
 }

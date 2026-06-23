@@ -56,3 +56,29 @@ Run `npm install` and `npm run build`. In production, create an account and veri
 
 ## Remaining issues
 Firebase Authentication email templates should use the desired sender name, reply address, subject, and action URL in the Firebase Console.
+
+---
+
+## Work date
+2026-06-23
+
+## Work content
+Reduced Firebase `auth/too-many-requests` risk by preventing duplicate signup submissions, adding a resend cooldown, and removing automatic verification-email resend on every unverified login attempt.
+
+## Modified files
+- `src/components/auth/AuthPanel.tsx`
+- `src/services/authService.ts`
+- `src/services/firebaseClient.ts`
+- `src/viewmodels/AuthViewModel.ts`
+
+## Firebase configuration
+Firebase may still temporarily block requests after repeated signup or email verification attempts. This is a Firebase Auth abuse-protection limit and clears after waiting.
+
+## Test method
+Run `npm run build` and test signup after the Firebase cooldown clears.
+
+## Test result
+`npm run build` passed.
+
+## Remaining issues
+If Firebase has already rate-limited the current IP/email, wait several minutes before retrying.

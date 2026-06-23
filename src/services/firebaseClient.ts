@@ -67,6 +67,14 @@ export function getFirebaseErrorMessage(error: unknown) {
       return "The Firebase API key is invalid or missing. Check NEXT_PUBLIC_FIREBASE_API_KEY in App Hosting.";
     }
 
+    if (error.message.includes("auth/too-many-requests")) {
+      return "Firebase temporarily blocked this action because too many requests were sent. Please wait a few minutes before trying again.";
+    }
+
+    if (error.message.includes("auth/email-already-in-use")) {
+      return "This email is already registered. Log in, then use resend verification email if needed.";
+    }
+
     return error.message;
   }
 
