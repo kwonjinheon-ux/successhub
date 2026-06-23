@@ -88,6 +88,10 @@ export function getFirebaseErrorMessage(error: unknown) {
       return "Enter a valid email address.";
     }
 
+    if (error.message.includes("auth/weak-password")) {
+      return "Password must include at least 8 characters, lowercase, uppercase, number, and special character.";
+    }
+
     if (error.message.includes("auth/requires-recent-login")) {
       return "Firebase requires a recent login before changing this email address. Log out, log in again, then retry.";
     }

@@ -4,14 +4,7 @@ import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/common/Button";
 import { useAuth } from "@/hooks/useAuth";
-
-const passwordRules = [
-  { label: "At least 8 characters", test: (value: string) => value.length >= 8 },
-  { label: "Lowercase letter", test: (value: string) => /[a-z]/.test(value) },
-  { label: "Uppercase letter", test: (value: string) => /[A-Z]/.test(value) },
-  { label: "Number", test: (value: string) => /\d/.test(value) },
-  { label: "Special character", test: (value: string) => /[^A-Za-z0-9]/.test(value) }
-];
+import { getPasswordChecks } from "@/services/passwordPolicy";
 
 export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const auth = useAuth();
@@ -24,8 +17,10 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [rememberFor30Days, setRememberFor30Days] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
-  const passwordChecks = useMemo(() => passwordRules.map((rule) => ({ ...rule, isValid: rule.test(password) })), [password]);
+  const passwordChecks = useMemo(() => getPasswordChecks(password), [password]);
   const resendRemainingSeconds = useCountdown(resendAvailableAt);
   const isResendCoolingDown = resendRemainingSeconds > 0;
   const isPasswordStrong = passwordChecks.every((rule) => rule.isValid);
@@ -159,25 +154,35 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
         {mode === "signup" ? <p className="muted">Firebase will send an email verification link after account creation.</p> : null}
         <label>
           Password
-          <input
-            minLength={mode === "signup" ? 8 : 6}
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
+          <span className="password-field">
+            <input
+              minLength={mode === "signup" ? 8 : 6}
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+            <button type="button" onClick={() => setShowPassword((current) => !current)}>
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </span>
         </label>
         {mode === "signup" ? (
           <>
             <label>
               Confirm password
-              <input
-                minLength={8}
-                type="password"
-                value={passwordConfirm}
-                onChange={(event) => setPasswordConfirm(event.target.value)}
-                required
-              />
+              <span className="password-field">
+                <input
+                  minLength={8}
+                  type={showPasswordConfirm ? "text" : "password"}
+                  value={passwordConfirm}
+                  onChange={(event) => setPasswordConfirm(event.target.value)}
+                  required
+                />
+                <button type="button" onClick={() => setShowPasswordConfirm((current) => !current)}>
+                  {showPasswordConfirm ? "Hide" : "Show"}
+                </button>
+              </span>
             </label>
             <div className="password-feedback">
               {passwordChecks.map((rule) => (

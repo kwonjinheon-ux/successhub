@@ -222,6 +222,34 @@ textarea {
   gap: 8px;
 }
 
+.password-field {
+  align-items: stretch;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.password-field input {
+  border-radius: 6px 0 0 6px;
+}
+
+.password-field button {
+  background: #f9fafb;
+  border: 1px solid var(--line);
+  border-left: 0;
+  border-radius: 0 6px 6px 0;
+  color: var(--accent-strong);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  min-width: 68px;
+  padding: 0 12px;
+}
+
+.password-field button:focus-visible {
+  outline: 3px solid rgba(17, 106, 107, 0.24);
+  outline-offset: 2px;
+}
+
 .password-feedback span {
   background: #f9fafb;
   border: 1px solid #e6e9ef;

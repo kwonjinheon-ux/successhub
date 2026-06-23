@@ -10,6 +10,7 @@ import {
   browserLocalPersistence,
   browserSessionPersistence,
   checkActionCode,
+  confirmPasswordReset,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   sendEmailVerification,
@@ -20,7 +21,8 @@ import {
   signInWithPopup,
   signOut,
   updateEmail,
-  updateProfile
+  updateProfile,
+  verifyPasswordResetCode
 } from "firebase/auth";
 import { getFirebaseAuth } from "@/services/firebaseClient";
 import { upsertUserProfile } from "@/services/databaseService";
@@ -134,8 +136,8 @@ export async function sendPasswordReset(email: string) {
   const origin = getEmailActionOrigin();
 
   await sendPasswordResetEmail(getFirebaseAuth(), email, {
-    url: `${origin}/login`,
-    handleCodeInApp: false
+    url: `${origin}/auth/action`,
+    handleCodeInApp: true
   });
 }
 
@@ -180,6 +182,14 @@ export async function handleEmailActionCode(oobCode: string) {
   }
 
   return auth.currentUser;
+}
+
+export function getPasswordResetEmail(oobCode: string) {
+  return verifyPasswordResetCode(getFirebaseAuth(), oobCode);
+}
+
+export function resetPasswordWithCode(oobCode: string, newPassword: string) {
+  return confirmPasswordReset(getFirebaseAuth(), oobCode, newPassword);
 }
 
 export async function refreshCurrentUser() {
