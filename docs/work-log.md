@@ -171,6 +171,29 @@ Run `npm run build`.
 2026-06-23
 
 ## Work content
+Added a responsive profile photo adjustment UI in Edit Profile. Users can choose a profile image, adjust size and position in a circular preview, and save the cropped PNG to Firebase Storage while the profile URL remains stored in Firestore.
+
+## Modified files
+- `src/components/auth/ProfilePanel.tsx`
+- `src/viewmodels/ProfileViewModel.ts`
+- `src/styles/globals.css`
+- `docs/work-log.md`
+
+## Firebase configuration
+Authenticated users still need permission to write to their own `profiles/{uid}` Storage path.
+
+## Test method
+Run `npm run build`.
+
+## Test result
+`npm run build` passed.
+
+---
+
+## Work date
+2026-06-23
+
+## Work content
 Moved member profile metadata from Realtime Database to Cloud Firestore and deployed Storage/Firestore rules to fix `storage/unauthorized` on profile image upload.
 
 ## Modified files

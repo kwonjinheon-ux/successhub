@@ -142,6 +142,11 @@ textarea {
   padding: 11px 12px;
 }
 
+input[type="range"] {
+  accent-color: var(--accent);
+  padding: 0;
+}
+
 textarea {
   min-height: 110px;
   resize: vertical;
@@ -274,10 +279,70 @@ textarea {
   width: 86px;
 }
 
+.profile-photo-button {
+  appearance: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.profile-photo-button:focus-visible {
+  outline: 3px solid rgba(17, 106, 107, 0.24);
+  outline-offset: 3px;
+}
+
 .profile-photo img {
   height: 100%;
   object-fit: cover;
   width: 100%;
+}
+
+.profile-photo-field input {
+  cursor: pointer;
+}
+
+.profile-photo-editor {
+  align-items: center;
+  background: #f9fafb;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 180px minmax(0, 1fr);
+  padding: 14px;
+}
+
+.profile-crop-frame {
+  aspect-ratio: 1;
+  background: #e8edf2;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  display: grid;
+  overflow: hidden;
+  place-items: center;
+  width: 180px;
+}
+
+.profile-crop-frame img {
+  height: 100%;
+  object-fit: cover;
+  transform-origin: center;
+  width: 100%;
+}
+
+.profile-adjustments {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.profile-adjustment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profile-adjustment-actions .button {
+  min-width: 96px;
 }
 
 .member-summary {
@@ -385,6 +450,15 @@ textarea {
 
   .profile-photo {
     width: 76px;
+  }
+
+  .profile-photo-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-crop-frame {
+    justify-self: center;
+    width: min(180px, 100%);
   }
 }
 

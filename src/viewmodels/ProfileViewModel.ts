@@ -45,9 +45,11 @@ export function useProfileViewModel(uid?: string) {
       await upsertUserProfile(uid, savedProfile);
       setProfile((current) => ({ ...current, ...savedProfile, uid } as UserModel));
       setMessage("Profile updated.");
+      return true;
     } catch (nextError) {
       console.error(nextError);
       setError(getFirebaseErrorMessage(nextError));
+      return false;
     } finally {
       setIsSaving(false);
     }
