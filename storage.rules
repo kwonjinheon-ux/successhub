@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownsUserPath(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    match /profiles/{uid}/{fileName} {
+      allow read: if true;
+      allow create, update, delete: if ownsUserPath(uid)
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    match /posts/{uid}/{postId}/{fileName} {
+      allow read: if true;
+      allow create, update, delete: if ownsUserPath(uid)
+        && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    match /market/{uid}/{itemId}/{fileName} {
+      allow read: if true;
+      allow create, update, delete: if ownsUserPath(uid)
+        && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    match /private/{uid}/{allPaths=**} {
+      allow read, write: if ownsUserPath(uid);
+    }
+  }
+}

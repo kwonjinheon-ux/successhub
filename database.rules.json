@@ -1,0 +1,38 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "posts": {
+      ".read": true,
+      "$postId": {
+        ".write": "auth != null && (!data.exists() || data.child('authorId').val() === auth.uid || newData.child('authorId').val() === auth.uid)",
+        "comments": {
+          "$commentId": {
+            ".write": "auth != null && (!data.exists() || data.child('authorId').val() === auth.uid || newData.child('authorId').val() === auth.uid)"
+          }
+        },
+        "likes": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        }
+      }
+    },
+    "marketItems": {
+      ".read": true,
+      "$itemId": {
+        ".write": "auth != null && (!data.exists() || data.child('sellerId').val() === auth.uid || newData.child('sellerId').val() === auth.uid)"
+      }
+    },
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}

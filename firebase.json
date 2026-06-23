@@ -1,0 +1,28 @@
+{
+  "apphosting": {
+    "backendId": "success-hub-2026",
+    "rootDir": "/",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log"
+    ]
+  },
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "auth": {
+    "providers": {
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Success Hub 2026",
+        "supportEmail": "support@example.com",
+        "authorizedRedirectUris": []
+      }
+    }
+  }
+}
